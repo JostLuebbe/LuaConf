@@ -1,5 +1,5 @@
 #include "script.h"
 
-main() {
-    return;
+int main() {
+    return 0;
 }
