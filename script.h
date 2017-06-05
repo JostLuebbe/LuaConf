@@ -11,6 +11,7 @@ class Script {
 public:
     Script() {}
     Script(const char* path);
+    ~Script();
     double getNumber(const char* var_name);
     bool getBoolean(const char* var_name);
     const char* getString(const char* var_name);

@@ -1,5 +1,5 @@
-#include "script.h"
+#include "luaconf.h"
 
 int main() {
-    return 0;
+    LuaConf lc("luaconf_demo.lua");
 }
