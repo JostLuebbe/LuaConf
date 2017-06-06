@@ -32,3 +32,13 @@ Script::Script(const char* path) {
      lua_remove(L, -1);
      return value == 1 ? true : false;
 }
+
+int Script::getType(const char* var_name) {
+    lua_getglobal(L, var_name);
+    if(lua_isnumber(L, -1))
+        return NUMBER;
+    else if(lua_isboolean(L, -1))
+        return BOOLEAN;
+    else if(lua_isstring(L, -1))
+        return STRING;
+}

@@ -7,6 +7,8 @@ extern "C" {
 #include <lualib.h>
 }
 
+enum {NUMBER, BOOLEAN, STRING};
+
 class Script {
 public:
     Script() {}
@@ -16,6 +18,7 @@ public:
     bool getBoolean(const char* var_name);
     const char* getString(const char* var_name);
 private:
+    int getType(const char* var_name);
     lua_State* L;
 };
 

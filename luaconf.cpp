@@ -10,7 +10,7 @@ LuaConf::~LuaConf() {
 
 }
 
-void LuaConf::loadArgs(const char** var_names) {
+void LuaConf::loadArgs(const char** var_names, int n) {
     
 }
 
