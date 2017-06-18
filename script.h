@@ -17,8 +17,8 @@ public:
     double getNumber(const char* var_name);
     bool getBoolean(const char* var_name);
     const char* getString(const char* var_name);
-private:
     int getType(const char* var_name);
+private:
     lua_State* L;
 };
 

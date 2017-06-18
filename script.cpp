@@ -33,6 +33,15 @@ Script::Script(const char* path) {
      return value == 1 ? true : false;
 }
 
+const char* Script::getString(const char* var_name) {
+    lua_getglobal(L, var_name);
+    if(!lua_isstring(L, -1))
+        printf("%s is not a string\n", var_name);
+    const char* value = lua_tostring(L, -1);
+    lua_remove(L, -1);
+    return value;
+}
+
 int Script::getType(const char* var_name) {
     lua_getglobal(L, var_name);
     if(lua_isnumber(L, -1))

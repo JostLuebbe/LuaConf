@@ -1,15 +1,16 @@
 #ifndef LUACONF_LUACONF
 #define LUACONF_LUACONF
 
-#include <vector>
-
 #include "script.h"
 
+#include <map>
+#include <utility>
+#include <string>
 
-union luaVars {
-    int integer;
+union luaVar {
+    float fp;
     bool boolean;
-    const char* string;
+    char* string;
 };
 
 class LuaConf {
@@ -20,9 +21,12 @@ public:
     ~LuaConf();
 
     void reload();
+    float* getFloatPtr(const char* var_name);
+    bool* getBooleanPtr(const char* var_name);
+    char* getStringPtr(const char* var_name);
 private:
-    std::vector<const char*> var_names;
-    std::vector<luaVars> vars;
+    Script L;
+    std::map<std::string, std::pair<int, luaVar>> var_map;
 };
 
 #endif
