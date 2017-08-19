@@ -11,9 +11,9 @@ LuaConf::~LuaConf() {
 
 }
 
-void LuaConf::loadArgs(const char** var_names, int n) {
+void LuaConf::loadArgs(const char** var_names) {
     luaVar lv;
-    for(int i = 0; i < n; ++i) {
+    for(int i = 1; i < n; ++i) {
         int type = L.getType(var_names[i]);
         if(type == NUMBER)
             lv.fp = L.getNumber(var_names[i]);
