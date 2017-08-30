@@ -2,7 +2,6 @@
 
 #include <cstdarg>
 
-
 LuaConf::LuaConf(const char* path) {
     Script L(path);
 }
@@ -11,7 +10,7 @@ LuaConf::~LuaConf() {
 
 }
 
-void LuaConf::loadArgs(const char** var_names) {
+void LuaConf::loadArgs(const char** var_names, int n) {
     luaVar lv;
     for(int i = 1; i < n; ++i) {
         int type = L.getType(var_names[i]);

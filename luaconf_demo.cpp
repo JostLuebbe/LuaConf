@@ -6,7 +6,7 @@ int main() {
     LuaConf lc("luaconf_demo.lua");
     std::ofstream luaFile;
     luaFile.open("luaconf_demo.lua", std::ios::trunc);
-    luaFile << "testVar1 = 42";
+    luaFile << "testVar1 = 42\n";
     luaFile << "testVar2 = \"foo\"";
     luaFile.close();
     const char* varNames[] = {"testVar1", "testVar2"};
@@ -22,7 +22,7 @@ int main() {
         pass = false;
         std::cout << "Test 1 failed" << std::endl;
     }
-    if(testVar2 == "foo")
+    if(strncmp(testVar2,"foo",3) == 0)
         std::cout << "Test 2 pass" << std::endl;
     else {
         pass = false;

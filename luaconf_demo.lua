@@ -1,1 +1,2 @@
-testVar1 = 42testVar2 = "foo"
+testVar1 = 42
+testVar2 = "foo"

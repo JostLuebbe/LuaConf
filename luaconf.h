@@ -26,7 +26,7 @@ public:
     char* getStringPtr(const char* var_name);
 private:
     Script L;
-    std::map<std::string, std::pair<int, luaVar>> var_map;
+    std::map<std::string, std::pair<int, luaVar> > var_map;
 };
 
 #endif
