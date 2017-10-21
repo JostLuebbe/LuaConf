@@ -7,7 +7,7 @@ extern "C" {
 #include <lualib.h>
 }
 
-enum {NUMBER, BOOLEAN, STRING};
+enum lua_type {NUMBER, BOOLEAN, STRING};
 
 class Script {
 public:

@@ -2,18 +2,21 @@
 #include <fstream>
 #include <iostream>
 
+#define qprint(str) std::cout << str <<std::endl;
+
 int main() {
-    LuaConf lc("luaconf_demo.lua");
     std::ofstream luaFile;
     luaFile.open("luaconf_demo.lua", std::ios::trunc);
     luaFile << "testVar1 = 42\n";
-    luaFile << "testVar2 = \"foo\"";
+    luaFile << "testVar2 = \"foo\"\n";
     luaFile.close();
-    const char* varNames[] = {"testVar1", "testVar2"};
-    lc.loadArgs(varNames, 2);
+    LuaConf lc("luaconf_demo.lua");
+    // Script sc("luaconf_demo.lua");
+    const char* varNames[] = {"testVar1", /*"testVar2"*/};
+    lc.loadArgs(varNames, 1);
     bool pass = true;
 
-    int testVar1 = *(int*)lc.getFloatPtr("testVar1");
+    float testVar1 = *lc.getFloatPtr("testVar1");
     char* testVar2 = lc.getStringPtr("testVar2");
 
     if(testVar1 == 42)

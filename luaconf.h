@@ -13,6 +13,11 @@ union luaVar {
     char* string;
 };
 
+typedef struct luaVarHolder {
+    int type;
+    union luaVar lv;
+} luaVarHolder;
+
 class LuaConf {
 public:
     LuaConf() {}
@@ -26,7 +31,7 @@ public:
     char* getStringPtr(const char* var_name);
 private:
     Script L;
-    std::map<std::string, std::pair<int, luaVar> > var_map;
+    std::map<std::string, luaVarHolder> var_map;
 };
 
 #endif
