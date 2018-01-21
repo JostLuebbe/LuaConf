@@ -10,15 +10,20 @@ extern "C" {
 #include <utility>
 #include <string>
 #include <assert.h>
+#include <vector>
 
 class LuaScript {
 public:
 	LuaScript() {}
 
-	void load(const char* path) {
+	LuaScript(const std::string path) {
+		load(path);
+	}
+
+	void load(const std::string path) {
 		L = luaL_newstate();
 		luaL_openlibs(L);
-		if (luaL_loadfile(L, path) || lua_pcall(L, 0, 0, 0))
+		if (luaL_loadfile(L, path.c_str()) || lua_pcall(L, 0, 0, 0))
 			printf("%s\n", lua_tostring(L, -1));
 	}
 
@@ -26,32 +31,32 @@ public:
 		lua_close(L);
 	}
 
-	double getNumber(const char* varName) {
-		lua_getglobal(L, varName);
+	double getNumber(const std::string varName) {
+		lua_getglobal(L, varName.c_str());
 		assert(lua_isnumber(L, -1));
 		double value = lua_tonumber(L, -1);
 		lua_remove(L, -1);
 		return value;
 	}
 
-	bool getBoolean(const char* varName) {
-		lua_getglobal(L, varName);
+	bool getBoolean(const std::string varName) {
+		lua_getglobal(L, varName.c_str());
 		assert(lua_isboolean(L, -1));
 		int value = lua_toboolean(L, -1);
 		lua_remove(L, -1);
 		return value == 1 ? true : false;
 	}
 
-	const char* getString(const char* varName) {
-		lua_getglobal(L, varName);
+	const std::string getString(const std::string varName) {
+		lua_getglobal(L, varName.c_str());
 		assert(lua_isstring(L, -1));
-		const char* value = lua_tostring(L, -1);
+		const std::string value = lua_tostring(L, -1);
 		lua_remove(L, -1);
 		return value;
 	}
 
-	int getType(const char* varName) {
-		lua_getglobal(L, varName);
+	int getType(const std::string varName) {
+		lua_getglobal(L, varName.c_str());
 		int t = lua_type(L, -1);
 		lua_remove(L, -1);
 		return t;
@@ -63,27 +68,30 @@ private:
 
 class LuaConf {
 public:
-	LuaConf() {}
-	LuaConf(const char* path) {
+	//LuaConf() {}
+	LuaConf(const std::string path) {
 		this->path = path;
 		script.load(path);
 	}
 
-	void loadArgs(const char** varNames, int n) {
+	void loadArgs(const std::string* varNames, int n) {
 		for (int i = 0; i < n; ++i) {
-			luaVar lv;
+			luaVar* lv = new luaVar();
 			int type = script.getType(varNames[i]);
-			if (type == LUA_TNUMBER) {
-				lv.type = LUA_TNUMBER;
-				lv.number = script.getNumber(varNames[i]);
-			}
-			else if (type == LUA_TBOOLEAN) {
-				lv.type = LUA_TBOOLEAN;
-				lv.boolean = script.getBoolean(varNames[i]);
-			}
-			else if (type == LUA_TSTRING) {
-				lv.type = LUA_TSTRING;
-				lv.string = const_cast<char*>(script.getString(varNames[i]));
+
+			switch (type) {
+			case LUA_TNUMBER:
+				lv->type = LUA_TNUMBER;
+				lv->number = script.getNumber(varNames[i]);
+				break;
+			case LUA_TBOOLEAN:
+				lv->type = LUA_TBOOLEAN;
+				lv->boolean = script.getBoolean(varNames[i]);
+				break;
+			case LUA_TSTRING:
+				lv->type = LUA_TSTRING;
+				lv->string = script.getString(varNames[i]);
+				break;
 			}
 
 			luaVarMap[varNames[i]] = lv;
@@ -91,49 +99,60 @@ public:
 	}
 
 	void reload() {
+		script.load(path);
+		int n = 0;
+		std::vector<std::string> keys;
 		for (auto i = luaVarMap.begin(); i != luaVarMap.end(); ++i) {
-
+			keys.push_back(i->first.c_str());
+			++n;
 		}
+		loadArgs(keys.data(), n);
 	}
 
 	//TODO: template for int and double
-	const double* LuaConf::getNumberPtr(const char* varName) {
+	const double* LuaConf::getNumberPtr(const std::string varName) {
 		if (luaVarMap.find(varName) == luaVarMap.end()) {
-			//TODO: add new luaVar
+			luaVarMap[varName] = new luaVar();
+			luaVarMap[varName]->type = LUA_TNUMBER;
+			luaVarMap[varName]->number = script.getNumber(varName);
 		}
 		else {
-			assert(luaVarMap[varName].type == LUA_TNUMBER);
+			assert(luaVarMap[varName]->type == LUA_TNUMBER);
 		}
-		return &luaVarMap[varName].number;
+		return &luaVarMap[varName]->number;
 	}
 
-	const bool* LuaConf::getBoolPtr(const char* varName) {
+	const bool* LuaConf::getBoolPtr(const std::string varName) {
 		if (luaVarMap.find(varName) == luaVarMap.end()) {
-			//TODO: add new luaVar
+			luaVarMap[varName] = new luaVar();
+			luaVarMap[varName]->type = LUA_TBOOLEAN;
+			luaVarMap[varName]->boolean = script.getBoolean(varName);
 		}
 		else {
-			assert(luaVarMap[varName].type == LUA_TBOOLEAN);
+			assert(luaVarMap[varName]->type == LUA_TBOOLEAN);
 		}
-		return &luaVarMap[varName].boolean;
+		return &luaVarMap[varName]->boolean;
 	}
 
-	const std::string* LuaConf::getStringPtr(const char* varName) {
+	const std::string* LuaConf::getStringPtr(const std::string varName) {
 		if (luaVarMap.find(varName) == luaVarMap.end()) {
-			//TODO: add new luaVar
+			luaVarMap[varName] = new luaVar();
+			luaVarMap[varName]->type = LUA_TSTRING;
+			luaVarMap[varName]->string = script.getString(varName);
 		}
 		else {
-			assert(luaVarMap[varName].type == LUA_TSTRING);
+			assert(luaVarMap[varName]->type == LUA_TSTRING);
 		}
-		return &luaVarMap[varName].string;
+		return &luaVarMap[varName]->string;
 	}
 
 private:
 	struct luaVar {
 		luaVar() {}
 		~luaVar() {}
-		luaVar& operator =(const luaVar&) {}
+		luaVar& operator =(const luaVar&) { return *this; }
 		int type;
-		union { //this is cool https://stackoverflow.com/a/13624921
+		union {
 			double number;
 			bool boolean;
 			std::string string;
@@ -143,5 +162,5 @@ private:
 
 	LuaScript script;
 	std::string path;
-	std::map<std::string, luaVar> luaVarMap;
+	std::map<std::string, luaVar*> luaVarMap;
 };
